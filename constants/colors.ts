@@ -7,6 +7,14 @@ export interface Colors {
   ratingBgColor: string;
   ratingText: string;
   rateBorderColor: string;
+  calendarArrow: string;
+  calendarBackground: string;
+  calendarHeaderText: string;
+  calendarWeekdayText: string;
+  calendarDisabledText: string;
+  calendarMonthButtonBackground: string;
+  calendarSelectedBackground: string;
+  calendarSelectedShadow: string;
   seeAll: string;
   upcomingCardBg: string;
   upcomingCardBorderPrimary: string;
@@ -24,6 +32,14 @@ export const color: Colors = {
   ratingBgColor: "#17181F",
   ratingText: "#8C8E9F",
   rateBorderColor: "#877AF7",
+  calendarArrow: "#F1F1F5",
+  calendarBackground: "#17181F",
+  calendarHeaderText: "#F1F1F5",
+  calendarWeekdayText: "#8C8E9F",
+  calendarDisabledText: "rgba(255, 255, 255, 0.25)",
+  calendarMonthButtonBackground: "rgba(135, 122, 247, 0.15)",
+  calendarSelectedBackground: "#877AF7",
+  calendarSelectedShadow: "rgba(124, 110, 245, 0.25)",
   seeAll: "#8C8E9F",
   upcomingCardBg: "#31323D",
   upcomingCardBorderPrimary: "#877AF7",
