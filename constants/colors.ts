@@ -28,6 +28,16 @@ export interface Colors {
   goalCardSuccessText: string;
   goalCardSuccessBorder: string;
   goalCardSuccessBackground: string;
+  taskCardBackground: string;
+  taskCardBorder: string;
+  taskCheckboxBackground: string;
+  taskCheckboxBorder: string;
+  taskTaskPillBackground: string;
+  taskTaskPillBorder: string;
+  taskTodayPillBackground: string;
+  taskTodayPillText: string;
+  taskStatusDot: string;
+  taskCompletedDot: string;
   seeAll: string;
   upcomingCardBg: string;
   upcomingCardBorderPrimary: string;
@@ -66,6 +76,16 @@ export const color: Colors = {
   goalCardSuccessText: "#3AD693",
   goalCardSuccessBorder: "rgba(58, 214, 147, 0.30)",
   goalCardSuccessBackground: "rgba(58, 214, 147, 0.12)",
+  taskCardBackground: "#17181F",
+  taskCardBorder: "#31323D",
+  taskCheckboxBackground: "#20212A",
+  taskCheckboxBorder: "#31323D",
+  taskTaskPillBackground: "#20212A",
+  taskTaskPillBorder: "#31323D",
+  taskTodayPillBackground: "#20212A",
+  taskTodayPillText: "#8C8E9F",
+  taskStatusDot: "#F94144",
+  taskCompletedDot: "#3AD693",
   seeAll: "#8C8E9F",
   upcomingCardBg: "#31323D",
   upcomingCardBorderPrimary: "#877AF7",
