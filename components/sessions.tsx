@@ -1,4 +1,5 @@
 import { color } from "@/constants/colors";
+import { Link } from "expo-router";
 import { StyleSheet, Text, View } from "react-native";
 import SessionContainer from "./session-container";
 
@@ -7,7 +8,9 @@ export default function Sessions() {
     <View>
       <View style={styles.headingContainer}>
         <Text style={styles.title}>Today&apos;s Sessions</Text>
-        <Text style={styles.seeAll}>See all</Text>
+        <Link style={styles.seeAll} href="/calendar">
+          See all
+        </Link>
       </View>
 
       <SessionContainer />
