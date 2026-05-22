@@ -1,18 +1,13 @@
 import { color } from "@/constants/colors";
 import { Feather } from "@expo/vector-icons";
-import { StyleSheet, Text, View } from "react-native";
-
-export type UpcomingCardBorderColor =
-  | typeof color.upcomingCardBorderPrimary
-  | typeof color.upcomingCardBorderSecondary
-  | typeof color.upcomingCardBorderSuccess
-  | typeof color.upcomingCardBorderInfo;
+import { router } from "expo-router";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
 export interface UpcomingCardData {
   id: string;
   title: string;
   time: string;
-  borderColor: UpcomingCardBorderColor;
+  borderColor: string;
 }
 
 export interface UpcomingCardItemProps {
@@ -22,7 +17,11 @@ export interface UpcomingCardItemProps {
 export function UpcomingCardItem({ item }: UpcomingCardItemProps) {
   return (
     <View style={styles.cardContainer}>
-      <View style={styles.cardTextContainer}>
+      <Pressable
+        accessibilityRole="button"
+        onPress={() => router.push({ pathname: "/session/[id]", params: { id: item.id } })}
+        style={styles.cardTextContainer}
+      >
         <View style={[styles.border, { borderLeftColor: item.borderColor }]}>
           <View style={styles.textBlock}>
             <Text style={styles.heading}>{item.title}</Text>
@@ -30,7 +29,7 @@ export function UpcomingCardItem({ item }: UpcomingCardItemProps) {
           </View>
         </View>
         <Feather name="chevron-right" size={20} color={color.textColor} />
-      </View>
+      </Pressable>
     </View>
   );
 }
@@ -48,7 +47,7 @@ const styles = StyleSheet.create({
     width: "100%",
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: color.upcomingCardBg,
+    borderColor: color.borderColor,
     paddingVertical: 18,
     paddingHorizontal: 17,
     backgroundColor: color.ratingBgColor,

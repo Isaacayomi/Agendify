@@ -1,11 +1,11 @@
+import { color } from "@/constants/colors";
 import { StyleSheet, Text, View } from "react-native";
 import UpcomingCard from "./upcoming-card";
 
 export default function UpcomingSession() {
   return (
     <View>
-      <Text style={styles.title}>Upcoming </Text>
-
+      <Text style={styles.title}>Upcoming</Text>
       <UpcomingCard />
     </View>
   );
@@ -13,7 +13,7 @@ export default function UpcomingSession() {
 
 const styles = StyleSheet.create({
   title: {
-    color: "white",
+    color: color.textColor,
     fontFamily: "DMSans_700Bold",
     fontSize: 16,
     lineHeight: 24,
