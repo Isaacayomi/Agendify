@@ -1,5 +1,7 @@
+import { AuthButton } from "@/components/ui/auth-button";
 import { color } from "@/constants/colors";
 import { BlurView } from "expo-blur";
+import { router } from "expo-router";
 import { Image, StyleSheet, Text, View } from "react-native";
 
 export function RootIndex() {
@@ -8,15 +10,24 @@ export function RootIndex() {
       <BlurView
         intensity={40}
         tint="dark"
-        style={{ ...StyleSheet.absoluteFillObject }}
+        style={StyleSheet.absoluteFillObject}
       />
 
-      <Image
-        style={styles.image}
-        source={require("../assets/images/icon.png")}
-      />
+      <View style={styles.hero}>
+        <Image
+          style={styles.image}
+          source={require("../assets/images/icon.png")}
+        />
+        <Text style={styles.text}>Agendify</Text>
+      </View>
 
-      <Text style={styles.text}>Agendify</Text>
+      <View style={styles.footer}>
+        <AuthButton
+          label="Get Started ->"
+          size="large"
+          onPress={() => router.replace("/onboarding")}
+        />
+      </View>
     </View>
   );
 }
@@ -28,14 +39,22 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
+    paddingHorizontal: 24,
+    paddingTop: 48,
+    paddingBottom: 32,
     backgroundColor: color.bgColor,
+    gap: 32,
   },
-
+  hero: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 12,
+  },
   image: {
-    height: 240,
-    width: 240,
+    height: 220,
+    width: 220,
   },
-
   text: {
     color: color.textColor,
     fontFamily: "DMSans_700Bold",
@@ -43,5 +62,8 @@ const styles = StyleSheet.create({
     lineHeight: 40,
     letterSpacing: -0.9,
     textAlign: "center",
+  },
+  footer: {
+    width: "100%",
   },
 });
