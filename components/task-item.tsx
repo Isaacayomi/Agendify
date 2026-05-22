@@ -1,31 +1,51 @@
 import { color } from "@/constants/colors";
-import { useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 interface TaskItemProps {
   title: string;
   statusLabel: string;
-  statusTone: "danger" | "success";
-  initialChecked?: boolean;
+  statusTone: "danger" | "upcoming" | "success";
+  checked: boolean;
+  onToggle: () => void;
 }
+
+const statusDotStyles = {
+  danger: {
+    backgroundColor: color.taskStatusDot,
+    shadowColor: color.taskStatusDot,
+  },
+  upcoming: {
+    backgroundColor: color.taskUpcomingDot,
+    shadowColor: color.taskUpcomingDot,
+  },
+  success: {
+    backgroundColor: color.taskCompletedDot,
+    shadowColor: color.taskCompletedDot,
+  },
+} satisfies Record<
+  TaskItemProps["statusTone"],
+  {
+    backgroundColor: string;
+    shadowColor: string;
+  }
+>;
 
 export function TaskItem({
   title,
   statusLabel,
   statusTone,
-  initialChecked = false,
+  checked,
+  onToggle,
 }: TaskItemProps) {
-  const [checked, setChecked] = useState(initialChecked);
-
   return (
     <View style={styles.row}>
       <Pressable
         accessibilityRole="checkbox"
         accessibilityState={{ checked }}
-        onPress={() => setChecked((current) => !current)}
+        onPress={onToggle}
         style={styles.checkbox}
       >
-        {checked ? <Text style={styles.checkmark}>✓</Text> : null}
+        {checked ? <Text style={styles.checkmark}>{"✓"}</Text> : null}
       </Pressable>
 
       <View style={styles.taskPill}>
@@ -37,14 +57,7 @@ export function TaskItem({
           <Text style={styles.todayText}>{statusLabel}</Text>
         </View>
 
-        <View
-          style={[
-            styles.statusDot,
-            statusTone === "success"
-              ? styles.statusDotSuccess
-              : styles.statusDotDanger,
-          ]}
-        />
+        <View style={[styles.statusDot, statusDotStyles[statusTone]]} />
       </View>
     </View>
   );
@@ -75,9 +88,9 @@ const styles = StyleSheet.create({
   },
   checkmark: {
     color: color.textColor,
+    fontFamily: "Inter_500Medium",
     fontSize: 14,
     lineHeight: 14,
-    fontFamily: "Inter_500Medium",
   },
   taskPill: {
     flex: 1,
@@ -113,21 +126,6 @@ const styles = StyleSheet.create({
     width: 10,
     height: 10,
     borderRadius: 33554400,
-  },
-  statusDotDanger: {
-    backgroundColor: color.taskStatusDot,
-    shadowColor: color.taskStatusDot,
-    shadowOffset: {
-      width: 0,
-      height: 0,
-    },
-    shadowOpacity: 1,
-    shadowRadius: 6,
-    elevation: 6,
-  },
-  statusDotSuccess: {
-    backgroundColor: color.taskCompletedDot,
-    shadowColor: color.taskCompletedDot,
     shadowOffset: {
       width: 0,
       height: 0,
