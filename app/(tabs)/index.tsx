@@ -1,27 +1,55 @@
-import Sessions from "@/components/sessions";
-import UpcomingSession from "@/components/upcoming-session";
+import { HomeGoalRing } from "@/components/home-goal-ring";
+import SessionsSection from "@/components/sessions";
+import UpcomingSessionSection from "@/components/upcoming-session";
 import { color } from "@/constants/colors";
+import { getTodayHeaderLabel } from "@/src/lib/date";
+import { getDailyGoalPercentage } from "@/src/lib/home";
+import { getTaskCompletionPercentage } from "@/src/lib/tasks";
+import { useGoalStore } from "@/src/store/useGoalStore";
+import { useTaskStore } from "@/src/store/useTaskStore";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 
 export function HomeScreen() {
+  const dailyGoalPercentage = useGoalStore((state) =>
+    getDailyGoalPercentage(state.goals),
+  );
+  const taskCompletionPercentage = useTaskStore((state) =>
+    getTaskCompletionPercentage(state.tasks),
+  );
+
   return (
     <ScrollView
       style={styles.container}
       contentContainerStyle={styles.content}
       showsVerticalScrollIndicator={false}
     >
-      <Text style={styles.date}>FRIDAY, MAY 15</Text>
+      <Text style={styles.date}>{getTodayHeaderLabel()}</Text>
       <Text style={styles.greeting}>Good morning, Prime 👋</Text>
 
       <View style={styles.ratingContainer}>
-        <View style={styles.rating}>
-          <Text style={styles.ratePercent}>64%</Text>
-          <Text style={styles.rateText}>of daily goal</Text>
+        <View style={styles.metricsRow}>
+          <View style={styles.rating}>
+            <HomeGoalRing
+              percentage={dailyGoalPercentage}
+              strokeColor={color.rateBorderColor}
+            />
+            <Text style={styles.ratePercent}>{dailyGoalPercentage}%</Text>
+            <Text style={styles.rateText}>Daily goal</Text>
+          </View>
+
+          <View style={styles.rating}>
+            <HomeGoalRing
+              percentage={taskCompletionPercentage}
+              strokeColor={color.goalCardSuccessText}
+            />
+            <Text style={styles.ratePercent}>{taskCompletionPercentage}%</Text>
+            <Text style={styles.rateText}>Task done</Text>
+          </View>
         </View>
       </View>
 
-      <Sessions />
-      <UpcomingSession />
+      <SessionsSection />
+      <UpcomingSessionSection />
     </ScrollView>
   );
 }
@@ -33,33 +61,43 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: color.bgColor,
   },
-
   content: {
     paddingHorizontal: 24,
     paddingBottom: 32,
   },
-
   ratingContainer: {
-    height: 238,
+    minHeight: 238,
     width: "100%",
     borderRadius: 24,
     borderWidth: 1,
     borderColor: color.borderColor,
     backgroundColor: color.ratingBgColor,
-    boxShadow: "0 0 32px 0 rgba(124, 110, 245, 0.15)",
+    shadowColor: color.rateBorderColor,
+    shadowOffset: {
+      width: 0,
+      height: 0,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 32,
+    elevation: 8,
+    alignItems: "center",
+    justifyContent: "center",
   },
-
+  metricsRow: {
+    width: "100%",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 12,
+  },
   ratePercent: {
-    color: "white",
+    color: color.textColor,
     fontFamily: "DMSans_700Bold",
     fontSize: 36,
     lineHeight: 40,
     letterSpacing: -0.9,
-    paddingTop: 45.75,
-    paddingBottom: 3,
     textAlign: "center",
   },
-
   rateText: {
     textAlign: "center",
     fontFamily: "Inter_400Regular",
@@ -68,18 +106,14 @@ const styles = StyleSheet.create({
     letterSpacing: 1.1,
     textTransform: "uppercase",
     color: color.ratingText,
-    paddingBottom: 45.75,
+    marginTop: 5,
   },
-
   rating: {
-    borderWidth: 12,
-    borderColor: color.rateBorderColor,
-    borderRadius: 100,
-    width: 160,
+    flex: 1,
     height: 160,
-    margin: "auto",
+    alignItems: "center",
+    justifyContent: "center",
   },
-
   date: {
     color: color.date,
     fontFamily: "Inter_500Medium",
@@ -90,14 +124,12 @@ const styles = StyleSheet.create({
     marginBottom: 4,
     marginTop: 48,
   },
-
   greeting: {
-    color: "white",
+    color: color.textColor,
     fontSize: 24,
     lineHeight: 32,
     letterSpacing: -0.6,
     fontFamily: "DMSans_700Bold",
     marginBottom: 28,
-    // marginHorizontal: "auto",
   },
 });
