@@ -1,62 +1,105 @@
 import { GoalsCard } from "@/components/goals-card";
+import { FloatingActionButton } from "@/components/ui/floating-action-button";
 import { color } from "@/constants/colors";
+import { toGoalCard } from "@/src/lib/goals";
+import { useGoalStore } from "@/src/store/useGoalStore";
+import type { GoalType } from "@/src/types/goal";
+import { router } from "expo-router";
+import { useMemo, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Feather } from "@expo/vector-icons";
 
-const goalCards = [
-  {
-    id: "daily-study",
-    label: "Daily study hours",
-    value: "3.2 / 5 hrs",
-    status: "On track",
-    progress: 64,
-    tone: "primary" as const,
-  },
-  {
-    id: "reading",
-    label: "Reading streak",
-    value: "5 / 7 days",
-    status: "At risk",
-    progress: 45,
-    tone: "risk" as const,
-  },
-  {
-    id: "revision",
-    label: "Revision target",
-    value: "9 / 10 hrs",
-    status: "Completed",
-    progress: 92,
-    tone: "success" as const,
-  },
-];
+const goalTabs: GoalType[] = ["daily", "weekly", "monthly"];
 
 export function GoalScreen() {
+  const goals = useGoalStore((state) => state.goals);
+  const setGoalCompleted = useGoalStore((state) => state.setGoalCompleted);
+  const [selectedPeriod, setSelectedPeriod] = useState<GoalType>("weekly");
+
+  const goalCards = useMemo(
+    () =>
+      [...goals]
+        .sort((left, right) =>
+          left.type === selectedPeriod ? -1 : right.type === selectedPeriod ? 1 : 0,
+        )
+        .map((goal) => toGoalCard(goal)),
+    [goals, selectedPeriod],
+  );
+
+  const selectedLabel =
+    selectedPeriod.charAt(0).toUpperCase() + selectedPeriod.slice(1);
+
   return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={styles.content}
-      showsVerticalScrollIndicator={false}
-    >
-      <Text style={styles.heading}>Your goals</Text>
-      <Text style={styles.subheading}>Small steps. Steady streaks.</Text>
+    <View style={styles.container}>
+      <ScrollView
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.headerTextBlock}>
+          <Text style={styles.heading}>Your goals</Text>
+          <Text style={styles.subheading}>
+            {selectedLabel} focus, steady progress.
+          </Text>
+        </View>
 
-      <View style={styles.headingContainer}>
-        <Pressable>
-          <Text style={styles.text}>Daily</Text>
-        </Pressable>
-        <Pressable>
-          <Text style={styles.active}>Weekly</Text>
-        </Pressable>
-        <Pressable>
-          <Text style={styles.text}>Monthly</Text>
-        </Pressable>
-      </View>
+        <View style={styles.headingContainer}>
+          {goalTabs.map((period) => {
+            const isActive = period === selectedPeriod;
+            return (
+              <Pressable key={period} onPress={() => setSelectedPeriod(period)}>
+                <Text style={isActive ? styles.active : styles.text}>
+                  {period.charAt(0).toUpperCase() + period.slice(1)}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
 
-      <View style={styles.cards}>
-        {goalCards.map((card) => (
-          <GoalsCard key={card.id} {...card} />
-        ))}
+        <View style={styles.cards}>
+          {goalCards.length > 0 ? (
+            goalCards.map((card) => (
+              <GoalsCard
+                key={card.id}
+                {...card}
+                onPress={() =>
+                  router.push({
+                    pathname: "/goal/[id]",
+                    params: { id: card.id },
+                  })
+                }
+                onMarkComplete={
+                  card.completed
+                    ? undefined
+                    : () => setGoalCompleted(card.id, true)
+                }
+              />
+            ))
+          ) : (
+            <View style={styles.emptyState}>
+              <View style={styles.emptyIconWrap}>
+                <Feather name="target" size={18} color={color.seeAll} />
+              </View>
+              <Text style={styles.emptyTitle}>No goals yet</Text>
+              <Text style={styles.emptySubtitle}>
+                Add your first goal to start tracking progress.
+              </Text>
+            </View>
+          )}
+        </View>
+      </ScrollView>
+
+      <View style={styles.fabWrap}>
+        <FloatingActionButton
+          accessibilityLabel="Add goal"
+          onPress={() =>
+            router.push({
+              pathname: "/modal/[entity]",
+              params: { entity: "goal" },
+            })
+          }
+        />
       </View>
-    </ScrollView>
+    </View>
   );
 }
 
@@ -66,31 +109,31 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: color.bgColor,
+    position: "relative",
   },
-
   content: {
     paddingHorizontal: 24,
     paddingBottom: 100,
     marginTop: 48,
   },
-
   heading: {
-    color: "white",
+    color: color.textColor,
     fontSize: 24,
     lineHeight: 32,
     letterSpacing: -0.6,
     fontFamily: "DMSans_700Bold",
     marginBottom: 4,
   },
-
+  headerTextBlock: {
+    flex: 1,
+  },
   subheading: {
-    fontFamily: "Inter400Regular",
+    fontFamily: "Inter_400Regular",
     fontSize: 14,
     lineHeight: 20,
     color: color.date,
     marginBottom: 20,
   },
-
   headingContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -104,7 +147,6 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     marginBottom: 24,
   },
-
   text: {
     fontFamily: "Inter_500Medium",
     fontSize: 12,
@@ -112,9 +154,8 @@ const styles = StyleSheet.create({
     color: color.date,
     textAlign: "center",
   },
-
   active: {
-    color: "white",
+    color: color.textColor,
     fontFamily: "Inter_500Medium",
     fontSize: 12,
     lineHeight: 16,
@@ -124,8 +165,41 @@ const styles = StyleSheet.create({
     paddingHorizontal: 33,
     borderRadius: 20,
   },
-
   cards: {
     gap: 12,
+  },
+  emptyState: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 24,
+    gap: 6,
+  },
+  emptyIconWrap: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: color.borderColor,
+    backgroundColor: color.calendarBackground,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  emptyTitle: {
+    color: color.textColor,
+    fontFamily: "DMSans_700Bold",
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  emptySubtitle: {
+    color: color.date,
+    fontFamily: "Inter_400Regular",
+    fontSize: 12,
+    lineHeight: 16,
+    textAlign: "center",
+  },
+  fabWrap: {
+    position: "absolute",
+    right: 24,
+    bottom: 24,
   },
 });
