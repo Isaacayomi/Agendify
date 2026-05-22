@@ -8,10 +8,7 @@ import {
   TaskIcon,
   TipsIcon,
 } from "@/components/ui/icons";
-
-const TAB_ACTIVE_COLOR = "#877AF7";
-const TAB_INACTIVE_COLOR = "#8C8E9F";
-const TAB_BAR_BACKGROUND = "rgba(23, 24, 31, 0.95)";
+import { color } from "@/constants/colors";
 
 export default function TabLayout() {
   return (
@@ -19,10 +16,10 @@ export default function TabLayout() {
       screenOptions={{
         headerShown: false,
         tabBarButton: HapticTab,
-        tabBarActiveTintColor: TAB_ACTIVE_COLOR,
-        tabBarInactiveTintColor: TAB_INACTIVE_COLOR,
+        tabBarActiveTintColor: color.tabBarActiveTintColor,
+        tabBarInactiveTintColor: color.tabBarInactiveTintColor,
         tabBarStyle: {
-          backgroundColor: TAB_BAR_BACKGROUND,
+          backgroundColor: color.tabBarBackgroundColor,
           borderTopWidth: 0,
           height: 65,
         },

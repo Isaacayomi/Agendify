@@ -18,6 +18,7 @@ import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
+import { StyleSheet } from "react-native";
 import "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -49,26 +50,51 @@ export default function RootLayout() {
     }
   }, [loaded]);
 
+  useEffect(() => {
+    if (!loaded) {
+      return;
+    }
+  }, [loaded]);
+
   if (!loaded) return null;
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: color.bgColor }}>
+    <SafeAreaView style={styles.safeArea}>
       <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
         <Stack
           screenOptions={{
-            contentStyle: {
-              backgroundColor: color.bgColor,
-            },
+            contentStyle: styles.contentStyle,
           }}
         >
+          <Stack.Screen name="index" options={{ headerShown: false }} />
+          <Stack.Screen name="onboarding" options={{ headerShown: false }} />
+          <Stack.Screen name="setup" options={{ headerShown: false }} />
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="session/[id]" options={{ headerShown: false }} />
+          <Stack.Screen name="goal/[id]" options={{ headerShown: false }} />
+          <Stack.Screen
+            name="modal/[entity]"
+            options={{ headerShown: false, presentation: "modal" }}
+          />
           <Stack.Screen
             name="modal"
-            options={{ presentation: "modal", title: "Modal" }}
+            options={{ headerShown: false, presentation: "modal" }}
           />
+
+          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
         </Stack>
         <StatusBar style="light" />
       </ThemeProvider>
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: color.bgColor,
+  },
+  contentStyle: {
+    backgroundColor: color.bgColor,
+  },
+});

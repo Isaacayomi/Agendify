@@ -28,6 +28,10 @@ export interface Colors {
   goalCardSuccessText: string;
   goalCardSuccessBorder: string;
   goalCardSuccessBackground: string;
+  sessionCardBackground: string;
+  sessionCardBorder: string;
+  sessionPrimaryIconBg: string;
+  sessionSecondaryIconBg: string;
   taskCardBackground: string;
   taskCardBorder: string;
   taskCheckboxBackground: string;
@@ -37,8 +41,17 @@ export interface Colors {
   taskTodayPillBackground: string;
   taskTodayPillText: string;
   taskStatusDot: string;
+  taskUpcomingDot: string;
   taskCompletedDot: string;
   seeAll: string;
+  tipCardBackground: string;
+  tipCardBorder: string;
+  tipCardPillBackground: string;
+  tipCardPillBorder: string;
+  tabBarActiveTintColor: string;
+  tabBarInactiveTintColor: string;
+  tabBarBackgroundColor: string;
+  tabBarIconActiveBackground: string;
   upcomingCardBg: string;
   upcomingCardBorderPrimary: string;
   upcomingCardBorderSecondary: string;
@@ -76,6 +89,10 @@ export const color: Colors = {
   goalCardSuccessText: "#3AD693",
   goalCardSuccessBorder: "rgba(58, 214, 147, 0.30)",
   goalCardSuccessBackground: "rgba(58, 214, 147, 0.12)",
+  sessionCardBackground: "#17181F",
+  sessionCardBorder: "#31323D",
+  sessionPrimaryIconBg: "rgba(135, 122, 247, 0.18)",
+  sessionSecondaryIconBg: "rgba(58, 214, 147, 0.18)",
   taskCardBackground: "#17181F",
   taskCardBorder: "#31323D",
   taskCheckboxBackground: "#20212A",
@@ -85,8 +102,17 @@ export const color: Colors = {
   taskTodayPillBackground: "#20212A",
   taskTodayPillText: "#8C8E9F",
   taskStatusDot: "#F94144",
+  taskUpcomingDot: "#F4A437",
   taskCompletedDot: "#3AD693",
   seeAll: "#8C8E9F",
+  tipCardBackground: "rgba(255, 255, 255, 0.00)",
+  tipCardBorder: "rgba(135, 122, 247, 0.30)",
+  tipCardPillBackground: "rgba(135, 122, 247, 0.10)",
+  tipCardPillBorder: "rgba(135, 122, 247, 0.30)",
+  tabBarActiveTintColor: "#877AF7",
+  tabBarInactiveTintColor: "#8C8E9F",
+  tabBarBackgroundColor: "rgba(23, 24, 31, 0.95)",
+  tabBarIconActiveBackground: "rgba(135, 122, 247, 0.15)",
   upcomingCardBg: "#31323D",
   upcomingCardBorderPrimary: "#877AF7",
   upcomingCardBorderSecondary: "#F4A437",

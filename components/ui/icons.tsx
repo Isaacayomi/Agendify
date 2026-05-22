@@ -2,9 +2,7 @@ import type { ReactNode } from "react";
 import { StyleSheet, View } from "react-native";
 import Svg, { Circle, Path, Rect } from "react-native-svg";
 
-const ACTIVE_ICON_COLOR = "#877AF7";
-const INACTIVE_ICON_COLOR = "#8C8E9F";
-const ACTIVE_BACKGROUND_COLOR = "rgba(135, 122, 247, 0.15)";
+import { color } from "@/constants/colors";
 
 interface TabIconShellProps {
   focused: boolean;
@@ -171,7 +169,9 @@ export interface HomeIconProps {
 export function HomeIcon({ focused }: HomeIconProps) {
   return (
     <TabIconShell focused={focused}>
-      <HomeGlyph color={focused ? ACTIVE_ICON_COLOR : INACTIVE_ICON_COLOR} />
+      <HomeGlyph
+        color={focused ? color.tabBarActiveTintColor : color.tabBarInactiveTintColor}
+      />
     </TabIconShell>
   );
 }
@@ -184,7 +184,7 @@ export function CalendarIcon({ focused }: CalendarIconProps) {
   return (
     <TabIconShell focused={focused}>
       <CalendarGlyph
-        color={focused ? ACTIVE_ICON_COLOR : INACTIVE_ICON_COLOR}
+        color={focused ? color.tabBarActiveTintColor : color.tabBarInactiveTintColor}
       />
     </TabIconShell>
   );
@@ -197,7 +197,9 @@ export interface TaskIconProps {
 export function TaskIcon({ focused }: TaskIconProps) {
   return (
     <TabIconShell focused={focused}>
-      <TaskGlyph color={focused ? ACTIVE_ICON_COLOR : INACTIVE_ICON_COLOR} />
+      <TaskGlyph
+        color={focused ? color.tabBarActiveTintColor : color.tabBarInactiveTintColor}
+      />
     </TabIconShell>
   );
 }
@@ -209,7 +211,9 @@ export interface GoalIconProps {
 export function GoalIcon({ focused }: GoalIconProps) {
   return (
     <TabIconShell focused={focused}>
-      <GoalGlyph color={focused ? ACTIVE_ICON_COLOR : INACTIVE_ICON_COLOR} />
+      <GoalGlyph
+        color={focused ? color.tabBarActiveTintColor : color.tabBarInactiveTintColor}
+      />
     </TabIconShell>
   );
 }
@@ -221,7 +225,9 @@ export interface TipsIconProps {
 export function TipsIcon({ focused }: TipsIconProps) {
   return (
     <TabIconShell focused={focused}>
-      <TipsGlyph color={focused ? ACTIVE_ICON_COLOR : INACTIVE_ICON_COLOR} />
+      <TipsGlyph
+        color={focused ? color.tabBarActiveTintColor : color.tabBarInactiveTintColor}
+      />
     </TabIconShell>
   );
 }
@@ -229,7 +235,7 @@ export function TipsIcon({ focused }: TipsIconProps) {
 const styles = StyleSheet.create({
   activeContainer: {
     alignItems: "center",
-    backgroundColor: ACTIVE_BACKGROUND_COLOR,
+    backgroundColor: color.tabBarIconActiveBackground,
     borderRadius: 33554400,
     justifyContent: "center",
     paddingHorizontal: 14,
