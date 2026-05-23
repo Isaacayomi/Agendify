@@ -8,4 +8,14 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     ...(config.extra ?? {}),
     groqApiKey: process.env.GROQ_API_KEY,
   },
+  android: {
+    ...(config.android ?? {}),
+    package: "com.devprime.agendify",
+    googleServicesFile: "./google-services.json",
+  },
+  plugins: [
+    ...(config.plugins ?? []),
+    "@react-native-firebase/app",
+    "@react-native-firebase/auth",
+  ],
 });

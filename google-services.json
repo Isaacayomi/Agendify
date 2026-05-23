@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "830454734282",
+    "project_id": "agendify-17721",
+    "storage_bucket": "agendify-17721.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:830454734282:android:9f2d9d83be9a453d91c333",
+        "android_client_info": {
+          "package_name": "com.devprime.agendify"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "830454734282-knepr4j8dd86t0ifk089c2apddp0ja70.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAmnzw5FPvVgCslFEqS9KqV_ufGD-YJlSg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "830454734282-knepr4j8dd86t0ifk089c2apddp0ja70.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
