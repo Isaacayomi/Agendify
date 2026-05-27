@@ -1,10 +1,10 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
-// import {
-//   cancelSessionReminders,
-//   syncSessionReminder,
-// } from "@/src/lib/notifications";
+import {
+  cancelSessionReminders,
+  syncSessionReminder,
+} from "@/src/lib/notifications";
 import { getSafeStorage } from "@/src/lib/storage";
 import type { Session } from "@/src/types/session";
 
@@ -28,7 +28,7 @@ export const useSessionStore = create<SessionState>()(
         set((state) => ({
           sessions: [...state.sessions, session],
         }));
-        // void syncSessionReminder(session);
+        void syncSessionReminder(session);
       },
       toggleSessionCompletion: (id) => {
         const current = get().sessions.find((session) => session.id === id);
@@ -46,7 +46,7 @@ export const useSessionStore = create<SessionState>()(
             session.id === id ? nextSession : session,
           ),
         }));
-        // void syncSessionReminder(nextSession);
+        void syncSessionReminder(nextSession);
       },
       rescheduleSession: (id, startTime, endTime) => {
         const current = get().sessions.find((session) => session.id === id);
@@ -65,16 +65,18 @@ export const useSessionStore = create<SessionState>()(
         set((state) => ({
           sessions: state.sessions.map((session) =>
             session.id === id ? nextSession : session,
-        )}));
-        // void syncSessionReminder(nextSession);
+          ),
+        }));
+        void syncSessionReminder(nextSession);
       },
       resetSessions: () => {
+        const currentSessions = get().sessions;
         set(() => ({
           sessions: createInitialSessions(),
         }));
-        // currentSessions.forEach((session) => {
-        //   void cancelSessionReminders(session.id);
-        // });
+        currentSessions.forEach((session) => {
+          void cancelSessionReminders(session.id);
+        });
       },
     }),
     {
