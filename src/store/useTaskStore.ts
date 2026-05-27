@@ -1,10 +1,10 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
-// import {
-//   cancelTaskReminders,
-//   syncTaskReminder,
-// } from "@/src/lib/notifications";
+import {
+  cancelTaskReminders,
+  syncTaskReminder,
+} from "@/src/lib/notifications";
 import { getSafeStorage } from "@/src/lib/storage";
 import type { Task } from "@/src/types/task";
 
@@ -28,7 +28,7 @@ export const useTaskStore = create<TaskState>()(
         set((state) => ({
           tasks: [...state.tasks, task],
         }));
-        // void syncTaskReminder(task);
+        void syncTaskReminder(task);
       },
       toggleTask: (id) => {
         const current = get().tasks.find((task) => task.id === id);
@@ -46,21 +46,22 @@ export const useTaskStore = create<TaskState>()(
             task.id === id ? nextTask : task,
           ),
         }));
-        // void syncTaskReminder(nextTask);
+        void syncTaskReminder(nextTask);
       },
       removeTask: (id) => {
         set((state) => ({
           tasks: state.tasks.filter((task) => task.id !== id),
         }));
-        // void cancelTaskReminders(id);
+        void cancelTaskReminders(id);
       },
       resetTasks: () => {
+        const currentTasks = get().tasks;
         set(() => ({
           tasks: createInitialTasks(),
         }));
-        // currentTasks.forEach((task) => {
-        //   void cancelTaskReminders(task.id);
-        // });
+        currentTasks.forEach((task) => {
+          void cancelTaskReminders(task.id);
+        });
       },
     }),
     {
