@@ -14,16 +14,18 @@ import {
   DefaultTheme,
   ThemeProvider,
 } from "@react-navigation/native";
-import { Stack } from "expo-router";
+import { router, Stack, useSegments } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { StyleSheet } from "react-native";
 import "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { color } from "@/constants/colors";
 import { useColorScheme } from "@/hooks/use-color-scheme";
+import { getFirebaseAuth } from "@/src/lib/firebase";
+import { initializeNotifications } from "@/src/lib/notifications";
 
 export const unstable_settings = {
   anchor: "(tabs)",
@@ -33,6 +35,10 @@ void SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
+  const segments = useSegments();
+  const auth = getFirebaseAuth();
+  const [authReady, setAuthReady] = useState(auth === null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const [loaded] = useFonts({
     DMSans_400Regular,
@@ -45,18 +51,62 @@ export default function RootLayout() {
   });
 
   useEffect(() => {
-    if (loaded) {
-      void SplashScreen.hideAsync();
-    }
-  }, [loaded]);
-
-  useEffect(() => {
     if (!loaded) {
       return;
     }
+
+    void initializeNotifications();
   }, [loaded]);
 
-  if (!loaded) return null;
+  useEffect(() => {
+    if (!auth) {
+      setAuthReady(true);
+      return;
+    }
+
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      setIsAuthenticated(Boolean(user));
+      setAuthReady(true);
+    });
+
+    return unsubscribe;
+  }, [auth]);
+
+  useEffect(() => {
+    if (!loaded || !authReady) {
+      return;
+    }
+
+    void SplashScreen.hideAsync();
+  }, [loaded, authReady]);
+
+  useEffect(() => {
+    if (!authReady) {
+      return;
+    }
+
+    const firstSegment = segments[0];
+    const isPublicRoute =
+      !firstSegment ||
+      firstSegment === "onboarding" ||
+      firstSegment === "setup";
+    const isProtectedRoute =
+      firstSegment === "(tabs)" ||
+      firstSegment === "session" ||
+      firstSegment === "goal" ||
+      firstSegment === "modal";
+
+    if (isAuthenticated && isPublicRoute) {
+      router.replace("/(tabs)");
+      return;
+    }
+
+    if (!isAuthenticated && isProtectedRoute) {
+      router.replace("/onboarding");
+    }
+  }, [authReady, isAuthenticated, segments]);
+
+  if (!loaded || !authReady) return null;
 
   return (
     <SafeAreaView style={styles.safeArea}>
