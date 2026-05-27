@@ -1,10 +1,10 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
-// import {
-//   cancelGoalReminders,
-//   syncGoalReminder,
-// } from "@/src/lib/notifications";
+import {
+  cancelGoalReminders,
+  syncGoalReminder,
+} from "@/src/lib/notifications";
 import { getSafeStorage } from "@/src/lib/storage";
 import type { Goal } from "@/src/types/goal";
 
@@ -28,7 +28,7 @@ export const useGoalStore = create<GoalState>()(
         set((state) => ({
           goals: [...state.goals, goal],
         }));
-        // void syncGoalReminder(goal);
+        void syncGoalReminder(goal);
       },
       updateGoalProgress: (id, completedHours) => {
         const current = get().goals.find((goal) => goal.id === id);
@@ -45,7 +45,7 @@ export const useGoalStore = create<GoalState>()(
         set((state) => ({
           goals: state.goals.map((goal) => (goal.id === id ? nextGoal : goal)),
         }));
-        // void syncGoalReminder(nextGoal);
+        void syncGoalReminder(nextGoal);
       },
       setGoalCompleted: (id, completed) => {
         const current = get().goals.find((goal) => goal.id === id);
@@ -64,15 +64,16 @@ export const useGoalStore = create<GoalState>()(
         set((state) => ({
           goals: state.goals.map((goal) => (goal.id === id ? nextGoal : goal)),
         }));
-        // void syncGoalReminder(nextGoal);
+        void syncGoalReminder(nextGoal);
       },
       resetGoals: () => {
+        const currentGoals = get().goals;
         set(() => ({
           goals: createInitialGoals(),
         }));
-        // currentGoals.forEach((goal) => {
-        //   void cancelGoalReminders(goal.id);
-        // });
+        currentGoals.forEach((goal) => {
+          void cancelGoalReminders(goal.id);
+        });
       },
     }),
     {
