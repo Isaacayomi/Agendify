@@ -8,6 +8,7 @@ export interface AuthButtonProps {
   subtitle?: string;
   variant?: AuthButtonVariant;
   size?: "normal" | "large";
+  disabled?: boolean;
   onPress: () => void;
 }
 
@@ -16,17 +17,19 @@ export function AuthButton({
   subtitle,
   variant = "primary",
   size = "normal",
+  disabled = false,
   onPress,
 }: AuthButtonProps) {
   return (
     <Pressable
       accessibilityRole="button"
+      disabled={disabled}
       onPress={onPress}
       style={({ pressed }) => [
         styles.button,
         variant === "primary" ? styles.primaryButton : styles.secondaryButton,
         size === "large" && styles.largeButton,
-        pressed && styles.pressed,
+        (pressed || disabled) && styles.pressed,
       ]}
     >
       <View style={styles.textBlock}>
