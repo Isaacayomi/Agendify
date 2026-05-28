@@ -13,6 +13,11 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     package: "com.devprime.agendify",
     googleServicesFile: "./google-services.json",
   },
+  ios: {
+    ...(config.ios ?? {}),
+    bundleIdentifier: "com.devprime.agendify",
+    googleServicesFile: "./GoogleService-Info.plist",
+  },
   plugins: [
     ...(config.plugins ?? []),
     "@react-native-firebase/app",

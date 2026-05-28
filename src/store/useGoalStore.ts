@@ -3,6 +3,7 @@ import { createJSONStorage, persist } from "zustand/middleware";
 
 import {
   cancelGoalReminders,
+  enqueueNotificationResync,
   syncGoalReminder,
 } from "@/src/lib/notifications";
 import { getSafeStorage } from "@/src/lib/storage";
@@ -83,6 +84,13 @@ export const useGoalStore = create<GoalState>()(
       migrate: () => ({
         goals: [],
       }),
+      onRehydrateStorage: () => (state) => {
+        enqueueNotificationResync(async () => {
+          state?.goals.forEach((goal) => {
+            void syncGoalReminder(goal);
+          });
+        });
+      },
     },
   ),
 );

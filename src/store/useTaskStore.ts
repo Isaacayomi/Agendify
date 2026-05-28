@@ -3,6 +3,7 @@ import { createJSONStorage, persist } from "zustand/middleware";
 
 import {
   cancelTaskReminders,
+  enqueueNotificationResync,
   syncTaskReminder,
 } from "@/src/lib/notifications";
 import { getSafeStorage } from "@/src/lib/storage";
@@ -71,6 +72,13 @@ export const useTaskStore = create<TaskState>()(
       migrate: () => ({
         tasks: [],
       }),
+      onRehydrateStorage: () => (state) => {
+        enqueueNotificationResync(async () => {
+          state?.tasks.forEach((task) => {
+            void syncTaskReminder(task);
+          });
+        });
+      },
     },
   ),
 );

@@ -3,6 +3,7 @@ import { createJSONStorage, persist } from "zustand/middleware";
 
 import {
   cancelSessionReminders,
+  enqueueNotificationResync,
   syncSessionReminder,
 } from "@/src/lib/notifications";
 import { getSafeStorage } from "@/src/lib/storage";
@@ -86,6 +87,13 @@ export const useSessionStore = create<SessionState>()(
       migrate: () => ({
         sessions: [],
       }),
+      onRehydrateStorage: () => (state) => {
+        enqueueNotificationResync(async () => {
+          state?.sessions.forEach((session) => {
+            void syncSessionReminder(session);
+          });
+        });
+      },
     },
   ),
 );

@@ -15,9 +15,10 @@ import {
   ThemeProvider,
 } from "@react-navigation/native";
 import { router, Stack, useSegments } from "expo-router";
+import * as Notifications from "expo-notifications";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { StyleSheet } from "react-native";
 import "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -33,10 +34,58 @@ export const unstable_settings = {
 
 void SplashScreen.preventAutoHideAsync();
 
+interface NotificationPayload {
+  entity?: string;
+  id?: string;
+}
+
+function isNotificationPayload(value: unknown): value is NotificationPayload {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+
+  const payload = value as Record<string, unknown>;
+  const entity = payload.entity;
+  const id = payload.id;
+
+  return (
+    (entity === undefined || typeof entity === "string") &&
+    (id === undefined || typeof id === "string")
+  );
+}
+
+function getNotificationTarget(response: Notifications.NotificationResponse): void {
+  const data = response.notification.request.content.data;
+  if (!isNotificationPayload(data)) {
+    return;
+  }
+
+  if (data.entity === "task") {
+    router.push("/(tabs)/task");
+    return;
+  }
+
+  if (data.entity === "session" && data.id) {
+    router.push({
+      pathname: "/session/[id]",
+      params: { id: data.id },
+    });
+    return;
+  }
+
+  if (data.entity === "goal" && data.id) {
+    router.push({
+      pathname: "/goal/[id]",
+      params: { id: data.id },
+    });
+  }
+}
+
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const segments = useSegments();
   const auth = getFirebaseAuth();
+  const handledNotificationIdRef = useRef<string | null>(null);
   const [authReady, setAuthReady] = useState(auth === null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
@@ -51,12 +100,43 @@ export default function RootLayout() {
   });
 
   useEffect(() => {
-    if (!loaded) {
+    void initializeNotifications();
+  }, []);
+
+  useEffect(() => {
+    if (!loaded || !authReady) {
       return;
     }
 
-    void initializeNotifications();
-  }, [loaded]);
+    const handleNotification = (
+      response: Notifications.NotificationResponse,
+    ): void => {
+      const notificationId = response.notification.request.identifier;
+
+      if (handledNotificationIdRef.current === notificationId) {
+        return;
+      }
+
+      handledNotificationIdRef.current = notificationId;
+      getNotificationTarget(response);
+    };
+
+    const subscription = Notifications.addNotificationResponseReceivedListener(
+      handleNotification,
+    );
+
+    void Notifications.getLastNotificationResponseAsync().then((response) => {
+      if (!response) {
+        return;
+      }
+
+      handleNotification(response);
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, [authReady, loaded]);
 
   useEffect(() => {
     if (!auth) {

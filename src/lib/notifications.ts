@@ -8,6 +8,9 @@ import type { Task } from "@/src/types/task";
 
 const CHANNEL_ID = "agendify-reminders";
 const REMINDER_OFFSETS_MINUTES = [60, 30, 10, 3] as const;
+type ReminderEntity = "goal" | "session" | "task";
+const pendingResyncCallbacks: (() => Promise<void> | void)[] = [];
+let notificationsReady = false;
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -31,16 +34,48 @@ async function ensureAndroidChannel(): Promise<void> {
   });
 }
 
+function flushPendingResyncCallbacks(): void {
+  const callbacks = pendingResyncCallbacks.splice(0, pendingResyncCallbacks.length);
+
+  callbacks.forEach((callback) => {
+    void Promise.resolve(callback()).catch(() => {
+      // Ignore reminder sync failures during startup.
+    });
+  });
+}
+
 export async function initializeNotifications(): Promise<boolean> {
   await ensureAndroidChannel();
 
   const permissions = await Notifications.getPermissionsAsync();
   if ((permissions as { granted?: boolean }).granted) {
+    notificationsReady = true;
+    flushPendingResyncCallbacks();
     return true;
   }
 
   const result = await Notifications.requestPermissionsAsync();
-  return Boolean((result as { granted?: boolean }).granted);
+  const granted = Boolean((result as { granted?: boolean }).granted);
+  notificationsReady = granted;
+
+  if (granted) {
+    flushPendingResyncCallbacks();
+  }
+
+  return granted;
+}
+
+export function enqueueNotificationResync(
+  callback: () => Promise<void> | void,
+): void {
+  if (notificationsReady) {
+    void Promise.resolve(callback()).catch(() => {
+      // Ignore reminder sync failures during startup.
+    });
+    return;
+  }
+
+  pendingResyncCallbacks.push(callback);
 }
 
 function isFutureDate(date: Date): boolean {
@@ -57,6 +92,7 @@ function formatOffsetLabel(minutesBefore: number): string {
 
 function buildNotificationOptions(
   id: string,
+  entity: ReminderEntity,
   title: string,
   body: string,
   triggerDate: Date,
@@ -69,7 +105,7 @@ function buildNotificationOptions(
     content: {
       title,
       body,
-      data: { id },
+      data: { entity, id },
     },
     trigger: {
       type: Notifications.SchedulableTriggerInputTypes.DATE,
@@ -87,11 +123,18 @@ export async function cancelReminder(identifier: string): Promise<void> {
 
 async function scheduleReminder(
   identifier: string,
+  entity: ReminderEntity,
   title: string,
   body: string,
   triggerDate: Date,
 ): Promise<void> {
-  const request = buildNotificationOptions(identifier, title, body, triggerDate);
+  const request = buildNotificationOptions(
+    identifier,
+    entity,
+    title,
+    body,
+    triggerDate,
+  );
   if (!request) {
     return;
   }
@@ -104,6 +147,7 @@ async function scheduleReminder(
 
 async function syncTimedReminders(
   baseIdentifier: string,
+  entity: ReminderEntity,
   title: string,
   messageBuilder: (minutesBefore: number) => string,
   targetIso: string,
@@ -122,6 +166,7 @@ async function syncTimedReminders(
 
       await scheduleReminder(
         reminderIdentifier,
+        entity,
         title,
         messageBuilder(minutesBefore),
         triggerDate,
@@ -160,6 +205,7 @@ export async function syncSessionReminder(session: Session): Promise<void> {
 
   await syncTimedReminders(
     baseIdentifier,
+    "session",
     "Session reminder",
     (minutesBefore) =>
       `${session.title} starts in ${formatOffsetLabel(minutesBefore)}.`,
@@ -177,6 +223,7 @@ export async function syncTaskReminder(task: Task): Promise<void> {
 
   await syncTimedReminders(
     baseIdentifier,
+    "task",
     "Task reminder",
     (minutesBefore) =>
       `${task.title} is due in ${formatOffsetLabel(minutesBefore)}.`,
@@ -194,6 +241,7 @@ export async function syncGoalReminder(goal: Goal): Promise<void> {
 
   await syncTimedReminders(
     baseIdentifier,
+    "goal",
     "Goal reminder",
     (minutesBefore) =>
       `${goal.title} is due in ${formatOffsetLabel(minutesBefore)}.`,
