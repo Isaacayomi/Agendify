@@ -1,6 +1,7 @@
 import { AuthButton } from "@/components/ui/auth-button";
 import { AuthField } from "@/components/ui/auth-field";
 import { getFirebaseAuth } from "@/src/lib/firebase";
+import { signInWithGoogle } from "@/src/lib/google-signin";
 import { authFormSchema, type AuthFormValues } from "@/src/validation/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { router } from "expo-router";
@@ -13,8 +14,10 @@ import {
   Text,
   View,
 } from "react-native";
+import { statusCodes } from "@react-native-google-signin/google-signin";
 
 type AuthMode = "signIn" | "signUp";
+type AuthAction = "email" | "google" | null;
 
 function getFirebaseAuthErrorMessage(error: unknown): string {
   if (typeof error !== "object" || error === null) {
@@ -46,10 +49,33 @@ function getFirebaseAuthErrorMessage(error: unknown): string {
   }
 }
 
+function getGoogleAuthErrorMessage(error: unknown): string {
+  if (typeof error !== "object" || error === null) {
+    return "Something went wrong. Please try again.";
+  }
+
+  const authError = error as { code?: unknown };
+  const code = typeof authError.code === "string" ? authError.code : "";
+
+  switch (code) {
+    case statusCodes.SIGN_IN_CANCELLED:
+      return "Google sign in was cancelled.";
+    case statusCodes.IN_PROGRESS:
+      return "Google sign in is already in progress.";
+    case statusCodes.PLAY_SERVICES_NOT_AVAILABLE:
+      return "Google Play Services is not available on this device.";
+    case statusCodes.SIGN_IN_REQUIRED:
+      return "Please sign in with Google to continue.";
+    default:
+      return "Could not complete Google sign in. Please try again.";
+  }
+}
+
 export function AuthScreen() {
   const [mode, setMode] = useState<AuthMode>("signIn");
+  const [activeAction, setActiveAction] = useState<AuthAction>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const isSubmitting = activeAction !== null;
 
   const {
     control,
@@ -63,14 +89,14 @@ export function AuthScreen() {
     },
   });
 
-  const handleAuth = handleSubmit(async ({ email, password }) => {
+  const handleEmailAuth = handleSubmit(async ({ email, password }) => {
     const auth = getFirebaseAuth();
     if (!auth) {
       setSubmitError("Firebase auth is only available on native builds.");
       return;
     }
 
-    setIsSubmitting(true);
+    setActiveAction("email");
     setSubmitError(null);
 
     try {
@@ -86,9 +112,23 @@ export function AuthScreen() {
     } catch (error: unknown) {
       setSubmitError(getFirebaseAuthErrorMessage(error));
     } finally {
-      setIsSubmitting(false);
+      setActiveAction(null);
     }
   });
+
+  const handleGoogleAuth = async () => {
+    setActiveAction("google");
+    setSubmitError(null);
+
+    try {
+      await signInWithGoogle();
+      router.replace("/(tabs)");
+    } catch (error: unknown) {
+      setSubmitError(getGoogleAuthErrorMessage(error));
+    } finally {
+      setActiveAction(null);
+    }
+  };
 
   return (
     <ScrollView
@@ -106,12 +146,28 @@ export function AuthScreen() {
             : "Set up Agendify and start tracking your day."}
         </Text>
         <Text style={styles.subtitle}>
-          Your goals, tasks, and sessions stay connected once you sign in with
-          Firebase.
+          Continue with Google for now. Email/password sign in is coming next.
         </Text>
       </View>
 
       <View style={styles.form}>
+        <AuthButton
+          label={
+            activeAction === "google" ? "Connecting..." : "Continue with Google"
+          }
+          subtitle="Use the Google account on this phone"
+          size="large"
+          variant="secondary"
+          onPress={handleGoogleAuth}
+          disabled={isSubmitting}
+        />
+
+        <View style={styles.dividerRow}>
+          <View style={styles.dividerLine} />
+          <Text style={styles.dividerText}>or use email</Text>
+          <View style={styles.dividerLine} />
+        </View>
+
         <Controller
           control={control}
           name="email"
@@ -148,14 +204,14 @@ export function AuthScreen() {
 
         <AuthButton
           label={
-            isSubmitting
+            activeAction === "email"
               ? "Please wait..."
               : mode === "signIn"
                 ? "Sign in ->"
                 : "Create account ->"
           }
           size="large"
-          onPress={handleAuth}
+          onPress={handleEmailAuth}
           disabled={isSubmitting}
         />
 
@@ -212,6 +268,24 @@ const styles = StyleSheet.create({
   },
   form: {
     gap: 14,
+  },
+  dividerRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 12,
+    paddingVertical: 2,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: "#22242D",
+  },
+  dividerText: {
+    color: "#8C8E9F",
+    fontFamily: "Inter_500Medium",
+    fontSize: 12,
+    letterSpacing: 0.4,
+    textTransform: "uppercase",
   },
   submitError: {
     color: "#F94144",
