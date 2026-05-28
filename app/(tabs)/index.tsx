@@ -3,8 +3,14 @@ import SessionsSection from "@/components/sessions";
 import UpcomingSessionSection from "@/components/upcoming-session";
 import { color } from "@/constants/colors";
 import { getTodayHeaderLabel } from "@/src/lib/date";
-import { getDailyGoalPercentage } from "@/src/lib/home";
+import {
+  getDailyGoalPercentage,
+  getFirstNameFromDisplayName,
+  getGreetingLabel,
+} from "@/src/lib/home";
+import { getFirebaseAuth } from "@/src/lib/firebase";
 import { getTaskCompletionPercentage } from "@/src/lib/tasks";
+import { useEffect, useState } from "react";
 import { useGoalStore } from "@/src/store/useGoalStore";
 import { useTaskStore } from "@/src/store/useTaskStore";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
@@ -16,6 +22,23 @@ export function HomeScreen() {
   const taskCompletionPercentage = useTaskStore((state) =>
     getTaskCompletionPercentage(state.tasks),
   );
+  const [firstName, setFirstName] = useState("there");
+
+  useEffect(() => {
+    const auth = getFirebaseAuth();
+
+    if (!auth) {
+      return;
+    }
+
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      setFirstName(
+        getFirstNameFromDisplayName(user?.displayName, user?.email),
+      );
+    });
+
+    return unsubscribe;
+  }, []);
 
   return (
     <ScrollView
@@ -24,7 +47,9 @@ export function HomeScreen() {
       showsVerticalScrollIndicator={false}
     >
       <Text style={styles.date}>{getTodayHeaderLabel()}</Text>
-      <Text style={styles.greeting}>Good morning, Prime 👋</Text>
+      <Text style={styles.greeting}>
+        {getGreetingLabel()}, {firstName} 👋
+      </Text>
 
       <View style={styles.ratingContainer}>
         <View style={styles.metricsRow}>
