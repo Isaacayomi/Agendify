@@ -4,6 +4,7 @@ import {
   formatDurationLabel,
   formatTimeRange,
   formatUpcomingDateLabel,
+  getTodayDate,
   isSameIsoDate,
   isTodayIso,
 } from "@/src/lib/date";
@@ -26,6 +27,39 @@ export interface HomeUpcomingCard {
   title: string;
   time: string;
   borderColor: string;
+}
+
+export function getGreetingLabel(date: Date = getTodayDate()): string {
+  const hour = date.getHours();
+
+  if (hour >= 18) {
+    return "Good evening";
+  }
+
+  if (hour >= 12) {
+    return "Good afternoon";
+  }
+
+  return "Good morning";
+}
+
+export function getFirstNameFromDisplayName(
+  displayName?: string | null,
+  email?: string | null,
+): string {
+  const preferredName = displayName?.trim();
+
+  if (preferredName) {
+    return preferredName.split(/\s+/)[0] ?? "there";
+  }
+
+  const emailLocalPart = email?.trim().split("@")[0]?.trim();
+
+  if (emailLocalPart) {
+    return emailLocalPart.split(/[._-]+/)[0] ?? "there";
+  }
+
+  return "there";
 }
 
 function getSessionType(subject: string): HomeSessionCardType {
