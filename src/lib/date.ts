@@ -74,6 +74,16 @@ export function formatDurationLabel(startIso: string, endIso: string): string {
   return `${hours}H ${minutes.toString().padStart(2, "0")}M`;
 }
 
+export function formatBlogPublishedDate(dateString: string): string {
+  const date = parseISO(dateString);
+
+  if (Number.isNaN(date.getTime())) {
+    return dateString;
+  }
+
+  return format(date, "MMM d, yyyy");
+}
+
 export function formatUpcomingDateLabel(dateString: string): string {
   const date = parseISO(dateString);
   const timeLabel = format(date, "HH:mm");
