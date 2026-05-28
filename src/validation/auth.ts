@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 export const authFormSchema = z.object({
+  displayName: z.string().trim().optional(),
   email: z.string().trim().email("Enter a valid email address."),
   password: z
     .string()
