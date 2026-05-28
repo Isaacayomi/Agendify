@@ -1,7 +1,10 @@
-import { RecommendedReadCard } from "@/components/recommended-read-card";
 import { TipsCard } from "@/components/tips-card";
 import { color } from "@/constants/colors";
 import { fetchStudentProductivityTips, type GroqTip } from "@/lib/groq";
+import { BlogPostCard } from "@/src/components/tips/BlogPostCard";
+import { BlogPostModal } from "@/src/components/tips/BlogPostModal";
+import { fetchRssStudyPosts } from "@/src/lib/rss";
+import type { BlogPost } from "@/src/types/blog";
 import { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
@@ -22,6 +25,16 @@ export function TipsScreen() {
   const [error, setError] = useState<string | null>(null);
   const [activeTipIndex, setActiveTipIndex] = useState(0);
   const tipsScrollViewRef = useRef<ScrollView>(null);
+  const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
+  const [blogPostsLoading, setBlogPostsLoading] = useState(true);
+  const [blogPostsError, setBlogPostsError] = useState<string | null>(null);
+  const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
+  const [blogRefreshSeed, setBlogRefreshSeed] = useState(0);
+
+  const loadReadNextPosts = async (seed: number): Promise<BlogPost[]> => {
+    const fetchedPosts = await fetchRssStudyPosts(seed);
+    return fetchedPosts;
+  };
 
   useEffect(() => {
     let isMounted = true;
@@ -66,6 +79,47 @@ export function TipsScreen() {
     };
   }, []);
 
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadInitialReadNextPosts = async () => {
+      try {
+        setBlogPostsLoading(true);
+        setBlogPostsError(null);
+
+        const fetchedPosts = await loadReadNextPosts(0);
+
+        if (!isMounted) {
+          return;
+        }
+
+        setBlogPosts(fetchedPosts);
+      } catch (unknownError: unknown) {
+        if (!isMounted) {
+          return;
+        }
+
+        const message =
+          unknownError instanceof Error
+            ? unknownError.message
+            : "Something went wrong while loading articles.";
+
+        setBlogPostsError(message);
+        setBlogPosts([]);
+      } finally {
+        if (isMounted) {
+          setBlogPostsLoading(false);
+        }
+      }
+    };
+
+    void loadInitialReadNextPosts();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   const handleRefreshTips = async () => {
     try {
       setLoading(true);
@@ -88,8 +142,35 @@ export function TipsScreen() {
     }
   };
 
+  const handleRefreshReadNext = async () => {
+    try {
+      setBlogPostsLoading(true);
+      setBlogPostsError(null);
+
+      const nextSeed = blogRefreshSeed + 1;
+      setBlogRefreshSeed(nextSeed);
+
+      const fetchedPosts = await loadReadNextPosts(nextSeed);
+      setBlogPosts(fetchedPosts);
+    } catch (unknownError: unknown) {
+      const message =
+        unknownError instanceof Error
+          ? unknownError.message
+          : "Something went wrong while loading articles.";
+
+      setBlogPostsError(message);
+      setBlogPosts([]);
+    } finally {
+      setBlogPostsLoading(false);
+    }
+  };
+
   const showErrorState = error !== null;
   const refreshLabel = showErrorState ? "Retry Tips" : "Refresh Tips";
+  const showBlogErrorState = blogPostsError !== null;
+  const readNextRefreshLabel = showBlogErrorState
+    ? "Retry Articles"
+    : "Refresh Articles";
 
   const handleTipPress = (index: number) => {
     if (loading || showErrorState) {
@@ -186,14 +267,53 @@ export function TipsScreen() {
       </View>
 
       <View style={styles.recommendedSection}>
-        <Text style={styles.recommendedTitle}>Read next</Text>
-        <RecommendedReadCard
-          category="Focus"
-          title="How to stay sharp during long study sessions"
-          summary="A short guide to building better focus blocks, avoiding fatigue, and making breaks work for you."
-          readTime="4 min read"
-        />
+        <View style={styles.recommendedHeaderTextBlock}>
+          <Text style={styles.recommendedTitle}>Read next</Text>
+          <Text style={styles.recommendedSubtitle}>
+            Fresh study and productivity articles.
+          </Text>
+        </View>
+
+        {blogPostsLoading ? (
+          <View style={styles.loadingState}>
+            <ActivityIndicator size="large" color={color.rateBorderColor} />
+            <Text style={styles.loadingText}>Loading fresh articles...</Text>
+          </View>
+        ) : showBlogErrorState ? (
+          <View style={styles.errorState}>
+            <Text style={styles.errorText}>
+              We couldn&apos;t load fresh articles right now.
+            </Text>
+            <Text style={styles.errorSubtext}>{blogPostsError}</Text>
+          </View>
+        ) : (
+          <View style={styles.recommendedList}>
+            {blogPosts.map((post) => (
+              <BlogPostCard
+                key={post.id}
+                onPress={() => setSelectedPost(post)}
+                post={post}
+              />
+            ))}
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={readNextRefreshLabel}
+              onPress={() => void handleRefreshReadNext()}
+              style={styles.recommendedRefreshButton}
+            >
+              <Text style={styles.refreshButtonText}>
+                {readNextRefreshLabel}
+              </Text>
+            </Pressable>
+          </View>
+        )}
       </View>
+
+      <BlogPostModal
+        onClose={() => setSelectedPost(null)}
+        post={selectedPost}
+        visible={selectedPost !== null}
+      />
     </ScrollView>
   );
 }
@@ -312,12 +432,32 @@ const styles = StyleSheet.create({
   recommendedSection: {
     marginTop: 28,
   },
+  recommendedHeaderTextBlock: {
+    gap: 4,
+    marginBottom: 16,
+  },
   recommendedTitle: {
     color: color.textColor,
     fontFamily: "DMSans_700Bold",
     fontSize: 16,
     lineHeight: 24,
     letterSpacing: -0.2,
-    marginBottom: 12,
+  },
+  recommendedSubtitle: {
+    color: color.date,
+    fontFamily: "Inter_400Regular",
+    fontSize: 13,
+    lineHeight: 18,
+  },
+  recommendedList: {
+    gap: 16,
+  },
+  recommendedRefreshButton: {
+    alignSelf: "center",
+    borderRadius: 999,
+    backgroundColor: color.rateBorderColor,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    marginTop: 4,
   },
 });
