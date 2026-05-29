@@ -79,16 +79,6 @@ The `preview` build profile is tied to the `preview` EAS environment in [`eas.js
 
 ## Screenshots
 
-Place the exported screenshots in `docs/screenshots/` with these names:
-
-- `github-home.png`
-- `github-calendar.png`
-- `github-goal.png`
-- `github-tips.png`
-- `github-task.png`
-
-Then the README will render them like this:
-
 ### Home
 
 ![Home screen](docs/screenshots/github-home.png)
@@ -114,7 +104,3 @@ Then the README will render them like this:
 - Notification scheduling is handled centrally in `src/lib/notifications.ts`.
 - Date formatting and date calculations go through `src/lib/date.ts`.
 - App state is managed with Zustand and persisted using AsyncStorage.
-
-## License
-
-No license has been specified yet.
