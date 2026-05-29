@@ -4,10 +4,10 @@ import { color } from "@/constants/colors";
 import { toGoalCard } from "@/src/lib/goals";
 import { useGoalStore } from "@/src/store/useGoalStore";
 import type { GoalType } from "@/src/types/goal";
+import { Feather } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useMemo, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { Feather } from "@expo/vector-icons";
 
 const goalTabs: GoalType[] = ["daily", "weekly", "monthly"];
 
@@ -18,10 +18,8 @@ export function GoalScreen() {
 
   const goalCards = useMemo(
     () =>
-      [...goals]
-        .sort((left, right) =>
-          left.type === selectedPeriod ? -1 : right.type === selectedPeriod ? 1 : 0,
-        )
+      goals
+        .filter((goal) => goal.type === selectedPeriod)
         .map((goal) => toGoalCard(goal)),
     [goals, selectedPeriod],
   );
