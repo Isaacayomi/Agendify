@@ -6,7 +6,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   slug: config.slug ?? "agendify",
   extra: {
     ...(config.extra ?? {}),
-    groqApiKey: process.env.GROQ_API_KEY,
+    groqApiKey:
+      process.env.GROQ_API_KEY ?? process.env.EXPO_PUBLIC_GROQ_API_KEY,
   },
   android: {
     ...(config.android ?? {}),
