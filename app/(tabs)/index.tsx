@@ -32,9 +32,7 @@ export function HomeScreen() {
     }
 
     const unsubscribe = auth.onAuthStateChanged((user) => {
-      setFirstName(
-        getFirstNameFromDisplayName(user?.displayName, user?.email),
-      );
+      setFirstName(getFirstNameFromDisplayName(user?.displayName));
     });
 
     return unsubscribe;
