@@ -1,4 +1,5 @@
 import { color } from "@/constants/colors";
+import { Feather } from "@expo/vector-icons";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { SvgXml } from "react-native-svg";
 
@@ -84,6 +85,7 @@ export function GoalsCard({
   return (
     <Pressable
       accessibilityRole="button"
+      accessibilityHint="Opens goal details"
       onPress={onPress}
       style={({ pressed }) => [
         styles.card,
@@ -113,6 +115,15 @@ export function GoalsCard({
           <Text style={[styles.statusText, { color: toneStyles.textColor }]}>
             {status}
           </Text>
+        </View>
+
+        <View
+          style={[
+            styles.chevronWrap,
+            { borderColor: toneStyles.borderColor, backgroundColor: toneStyles.backgroundColor },
+          ]}
+        >
+          <Feather name="chevron-right" size={16} color={toneStyles.textColor} />
         </View>
       </View>
 
@@ -191,6 +202,14 @@ const styles = StyleSheet.create({
     borderRadius: 33554400,
     paddingHorizontal: 11,
     paddingVertical: 7,
+  },
+  chevronWrap: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    borderWidth: 1,
+    alignItems: "center",
+    justifyContent: "center",
   },
   statusText: {
     fontFamily: "Inter_500Medium",
