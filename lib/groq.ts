@@ -1,4 +1,4 @@
-import Constants from "expo-constants";
+import { getGroqApiKey } from "@/src/lib/groq-config";
 
 export interface GroqTip {
   topic: string;
@@ -19,20 +19,6 @@ interface GroqChatChoice {
 
 interface GroqChatResponse {
   choices?: GroqChatChoice[];
-}
-
-function getGroqApiKey(): string {
-  const extra = Constants.expoConfig?.extra as
-    | { groqApiKey?: string }
-    | undefined;
-
-  const apiKey = extra?.groqApiKey?.trim();
-
-  if (!apiKey) {
-    throw new Error("Groq API key is not configured.");
-  }
-
-  return apiKey;
 }
 
 function isGroqTipArray(value: unknown): value is GroqTip[] {
