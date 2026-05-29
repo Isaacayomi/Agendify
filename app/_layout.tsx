@@ -60,23 +60,25 @@ function getNotificationTarget(response: Notifications.NotificationResponse): vo
     return;
   }
 
+  const targetId = typeof data.id === "string" ? data.id : undefined;
+
   if (data.entity === "task") {
-    router.push("/(tabs)/task");
+    router.push("/task");
     return;
   }
 
-  if (data.entity === "session" && data.id) {
+  if (data.entity === "session" && targetId) {
     router.push({
       pathname: "/session/[id]",
-      params: { id: data.id },
+      params: { id: targetId },
     });
     return;
   }
 
-  if (data.entity === "goal" && data.id) {
+  if (data.entity === "goal" && targetId) {
     router.push({
       pathname: "/goal/[id]",
-      params: { id: data.id },
+      params: { id: targetId },
     });
   }
 }
@@ -104,7 +106,7 @@ export default function RootLayout() {
   }, []);
 
   useEffect(() => {
-    if (!loaded || !authReady) {
+    if (!loaded) {
       return;
     }
 
@@ -136,7 +138,7 @@ export default function RootLayout() {
     return () => {
       subscription.remove();
     };
-  }, [authReady, loaded]);
+  }, [loaded]);
 
   useEffect(() => {
     if (!auth) {
@@ -166,8 +168,10 @@ export default function RootLayout() {
     }
 
     const firstSegment = segments[0];
+    const isAuthRoute = firstSegment === "(auth)";
     const isPublicRoute =
       !firstSegment ||
+      isAuthRoute ||
       firstSegment === "onboarding" ||
       firstSegment === "setup";
     const isProtectedRoute =
@@ -197,8 +201,7 @@ export default function RootLayout() {
           }}
         >
           <Stack.Screen name="index" options={{ headerShown: false }} />
-          <Stack.Screen name="onboarding" options={{ headerShown: false }} />
-          <Stack.Screen name="setup" options={{ headerShown: false }} />
+          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="session/[id]" options={{ headerShown: false }} />
           <Stack.Screen name="goal/[id]" options={{ headerShown: false }} />
@@ -210,8 +213,6 @@ export default function RootLayout() {
             name="modal"
             options={{ headerShown: false, presentation: "modal" }}
           />
-
-          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
         </Stack>
         <StatusBar style="light" />
       </ThemeProvider>
