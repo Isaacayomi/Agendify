@@ -1,50 +1,120 @@
-# Welcome to your Expo app 👋
+# Agendify
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Agendify is a student productivity app built with Expo, React Native, and TypeScript. It helps users track study goals, manage tasks, plan sessions, stay on schedule with reminders, and get study tips powered by Groq.
 
-## Get started
+## Features
 
-1. Install dependencies
+- **Authentication and onboarding** - users sign in or sign up with email and password, then add their name for a personalized greeting.
+- **Home dashboard** - shows the current date, greeting, goal progress, task progress, today’s sessions, and upcoming sessions.
+- **Goals** - create and manage daily, weekly, and monthly goals with progress tracking and completion state.
+- **Tasks** - organize tasks by section, mark them complete, and keep track of what still needs attention.
+- **Calendar** - view planned sessions by date and quickly jump into a specific day.
+- **Study sessions** - create session entries, review session details, and open them from reminders or detail views.
+- **Notifications** - local reminders are scheduled for goals, tasks, and sessions.
+- **Tips** - fetch AI-generated study tips from Groq and show study takeaways from blog content.
 
-   ```bash
-   npm install
-   ```
+## Tech Stack
 
-2. Start the app
+- Expo SDK 54
+- Expo Router v6
+- React Native
+- TypeScript
+- Zustand + AsyncStorage
+- react-hook-form + zod
+- date-fns
+- expo-notifications
+- Firebase Auth
+- Groq API
 
-   ```bash
-   npx expo start
-   ```
+## Project Structure
 
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
+```text
+app/                 Expo Router screens and route groups
+components/          Shared UI components
+src/components/      Feature components
+src/lib/             App utilities and business logic
+src/store/           Zustand stores
+src/types/           Shared TypeScript types
+src/validation/      Zod schemas
+assets/              Images and fonts
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Getting Started
 
-## Learn more
+### Prerequisites
 
-To learn more about developing your project with Expo, look at the following resources:
+- Node.js
+- npm
+- EAS CLI
+- Android Studio emulator or a physical device
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+### Install dependencies
 
-## Join the community
+```bash
+npm install
+```
 
-Join our community of developers creating universal apps.
+### Start the app locally
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+```bash
+npx expo start
+```
+
+### Build a preview APK
+
+```bash
+eas build --platform android --profile preview
+```
+
+## Environment Variables
+
+The app expects a Groq API key at build time.
+
+Set one of these in your EAS environment:
+
+- `GROQ_API_KEY`
+- `EXPO_PUBLIC_GROQ_API_KEY`
+
+The `preview` build profile is tied to the `preview` EAS environment in [`eas.json`](./eas.json).
+
+## Screenshots
+
+Place the exported screenshots in `docs/screenshots/` with these names:
+
+- `github-home.png`
+- `github-calendar.png`
+- `github-goal.png`
+- `github-tips.png`
+- `github-task.png`
+
+Then the README will render them like this:
+
+### Home
+
+![Home screen](docs/screenshots/github-home.png)
+
+### Calendar
+
+![Calendar screen](docs/screenshots/github-calendar.png)
+
+### Goals
+
+![Goals screen](docs/screenshots/github-goal.png)
+
+### Tips
+
+![Tips screen](docs/screenshots/github-tips.png)
+
+### Tasks
+
+![Tasks screen](docs/screenshots/github-task.png)
+
+## Notes
+
+- Notification scheduling is handled centrally in `src/lib/notifications.ts`.
+- Date formatting and date calculations go through `src/lib/date.ts`.
+- App state is managed with Zustand and persisted using AsyncStorage.
+
+## License
+
+No license has been specified yet.
