@@ -45,18 +45,11 @@ export function getGreetingLabel(date: Date = getTodayDate()): string {
 
 export function getFirstNameFromDisplayName(
   displayName?: string | null,
-  email?: string | null,
 ): string {
   const preferredName = displayName?.trim();
 
   if (preferredName) {
     return preferredName.split(/\s+/)[0] ?? "there";
-  }
-
-  const emailLocalPart = email?.trim().split("@")[0]?.trim();
-
-  if (emailLocalPart) {
-    return emailLocalPart.split(/[._-]+/)[0] ?? "there";
   }
 
   return "there";
