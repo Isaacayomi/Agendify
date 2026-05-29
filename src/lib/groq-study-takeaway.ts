@@ -1,5 +1,5 @@
-import Constants from "expo-constants";
 import type { BlogPost } from "@/src/types/blog";
+import { getGroqApiKey } from "@/src/lib/groq-config";
 
 interface GroqChatMessage {
   content?: string | null;
@@ -15,20 +15,6 @@ interface GroqChatResponse {
 
 interface GroqTakeawayPayload {
   takeaway?: string;
-}
-
-function getGroqApiKey(): string {
-  const extra = Constants.expoConfig?.extra as
-    | { groqApiKey?: string }
-    | undefined;
-
-  const apiKey = extra?.groqApiKey?.trim();
-
-  if (!apiKey) {
-    throw new Error("Groq API key is not configured.");
-  }
-
-  return apiKey;
 }
 
 function parseTakeawayPayload(content: string): string {
@@ -103,4 +89,3 @@ export async function generateStudyTakeaway(
 
   return parseTakeawayPayload(content);
 }
-
