@@ -9,6 +9,11 @@ import type { Task } from "@/src/types/task";
 const CHANNEL_ID = "agendify-reminders";
 const REMINDER_OFFSETS_MINUTES = [60, 30, 10, 3] as const;
 type ReminderEntity = "goal" | "session" | "task";
+export interface ReminderSnapshot {
+  goals: Goal[];
+  sessions: Session[];
+  tasks: Task[];
+}
 const pendingResyncCallbacks: (() => Promise<void> | void)[] = [];
 let notificationsReady = false;
 
@@ -76,6 +81,12 @@ export function enqueueNotificationResync(
   }
 
   pendingResyncCallbacks.push(callback);
+}
+
+async function runQuietly(promise: Promise<void>): Promise<void> {
+  await promise.catch(() => {
+    // Ignore reminder sync failures during startup or foreground refresh.
+  });
 }
 
 function isFutureDate(date: Date): boolean {
@@ -247,4 +258,16 @@ export async function syncGoalReminder(goal: Goal): Promise<void> {
       `${goal.title} is due in ${formatOffsetLabel(minutesBefore)}.`,
     goal.deadline,
   );
+}
+
+export async function syncReminderSnapshot(
+  snapshot: ReminderSnapshot,
+): Promise<void> {
+  await Promise.all([
+    ...snapshot.goals.map((goal) => runQuietly(syncGoalReminder(goal))),
+    ...snapshot.sessions.map((session) =>
+      runQuietly(syncSessionReminder(session)),
+    ),
+    ...snapshot.tasks.map((task) => runQuietly(syncTaskReminder(task))),
+  ]);
 }

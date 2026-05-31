@@ -19,14 +19,21 @@ import * as Notifications from "expo-notifications";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useRef, useState } from "react";
-import { StyleSheet } from "react-native";
+import { AppState, StyleSheet } from "react-native";
 import "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { color } from "@/constants/colors";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { getFirebaseAuth } from "@/src/lib/firebase";
-import { initializeNotifications } from "@/src/lib/notifications";
+import {
+  initializeNotifications,
+  enqueueNotificationResync,
+  syncReminderSnapshot,
+} from "@/src/lib/notifications";
+import { useGoalStore } from "@/src/store/useGoalStore";
+import { useSessionStore } from "@/src/store/useSessionStore";
+import { useTaskStore } from "@/src/store/useTaskStore";
 
 export const unstable_settings = {
   anchor: "(tabs)",
@@ -104,6 +111,34 @@ export default function RootLayout() {
   useEffect(() => {
     void initializeNotifications();
   }, []);
+
+  useEffect(() => {
+    if (!loaded || !authReady) {
+      return;
+    }
+
+    const resyncReminders = (): void => {
+      enqueueNotificationResync(async () => {
+        await syncReminderSnapshot({
+          goals: useGoalStore.getState().goals,
+          sessions: useSessionStore.getState().sessions,
+          tasks: useTaskStore.getState().tasks,
+        });
+      });
+    };
+
+    resyncReminders();
+
+    const subscription = AppState.addEventListener("change", (nextState) => {
+      if (nextState === "active") {
+        resyncReminders();
+      }
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, [authReady, loaded]);
 
   useEffect(() => {
     if (!loaded) {
