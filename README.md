@@ -19,7 +19,7 @@ Agendify is a student productivity app built with Expo, React Native, and TypeSc
 - Expo Router v6
 - React Native
 - TypeScript
-- Zustand + AsyncStorage
+- Zustand + Sqlite
 - react-hook-form + zod
 - date-fns
 - expo-notifications
@@ -103,4 +103,4 @@ The `preview` build profile is tied to the `preview` EAS environment in [`eas.js
 
 - Notification scheduling is handled centrally in `src/lib/notifications.ts`.
 - Date formatting and date calculations go through `src/lib/date.ts`.
-- App state is managed with Zustand and persisted using AsyncStorage.
+- App state is managed with Zustand and persisted using Sqlite.
