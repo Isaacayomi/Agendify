@@ -77,6 +77,10 @@ Set one of these in your EAS environment:
 
 The `preview` build profile is tied to the `preview` EAS environment in [`eas.json`](./eas.json).
 
+## Download
+- **Android (APK):** [Download](https://github.com/Isaacayomi/Agendify/releases/download/v1.0.0/application-f6c479ad-03dc-4ee1-b6be-1716f85e847a.apk) — sideload directly on an Android device (enable "Install from unknown sources").
+- **iOS Simulator build:** [Download](https://github.com/Isaacayomi/Agendify/releases/download/v1.0.0/application-54f21c40-9cb9-4eb6-84b2-30de851c13cc.tar.gz) — runs only in Xcode's iOS Simulator on macOS, not on a physical iPhone.
+
 ## Screenshots
 
 ### Home
